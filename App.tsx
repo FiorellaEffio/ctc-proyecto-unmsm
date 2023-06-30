@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -18,14 +18,9 @@ import {
   Button,
   Alert,
 } from 'react-native';
+import {Camera, useCameraDevices} from 'react-native-vision-camera';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -63,6 +58,32 @@ function App(): JSX.Element {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+  const devices = useCameraDevices();
+  const device = devices.back;
+
+  useEffect(() => {
+    checkPermission();
+  }, []);
+
+  const checkPermission = async () => {
+    const newCameraPermission = await Camera.requestCameraPermission();
+    const newMicrophonePermission = await Camera.requestMicrophonePermission();
+    console.log(newCameraPermission);
+    console.log(newMicrophonePermission);
+  };
+
+  if (device !== null) {
+    return (
+      <View style={{flex: 1}}>
+        <Camera
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={true}
+        />
+        <Text>hola</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -87,20 +108,10 @@ function App(): JSX.Element {
               accessibilityLabel="Learn more about this purple button"
             />
             <Button
-              title="Press me"
+              title="Take a photo"
               onPress={() => Alert.alert('Simple Button pressed')}
             />
           </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
         </View>
       </ScrollView>
     </SafeAreaView>
